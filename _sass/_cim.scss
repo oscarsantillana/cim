@@ -178,6 +178,9 @@ div.flag-container.use-letters div.chord-notes-container > div.note-wrapper div.
     display: flex;
 }
 
+div.flag-container.solfage div.chord-notes-container > div.note-wrapper div.note-text.solfage {
+    display: flex;
+}
 
 div.flag-container.chord-notes div.chord-notes-container {
     display: flex;

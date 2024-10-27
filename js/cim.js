@@ -228,6 +228,11 @@ function populate_flags() {
         base_elem.classList.remove("chord-notes");
     }
 
+    if (STATE.current_notation === "solfage") {
+        base_elem.classList.add("solfage");
+    } else {
+        base_elem.classList.remove("solfage");
+    }
 }
 
 function audio_file_elem(audio_file) {
@@ -1516,6 +1521,13 @@ function clean_session_history() {
     }
 
     save_session_history();
+}
+
+function toggle_notation() {
+    const notation_selector = document.getElementById("notation-selector");
+    STATE.current_notation = notation_selector.value;
+    populate_flags();
+    save_state();
 }
 
 document.addEventListener("DOMContentLoaded", function() {

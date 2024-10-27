@@ -4,24 +4,49 @@
 
 {% comment %} Construct an array of "display notes {% endcomment %}
 {%- assign display_notes = "" | split: "" -%}
+{%- assign solfage_notes = "" | split: "" -%}
 {%- for color in site.data.chords -%}
     {%- assign _notes = "" | split: "" -%}
+    {%- assign _solfage_notes = "" | split: "" -%}
     {%- for _note in color.notes -%}
         {%- assign _note_array = _note | split: "" -%}
         {%- assign _display_note = "" | split: "" -%}
+        {%- assign _solfage_note = "" | split: "" -%}
         {%- for char in _note_array -%}
             {%- if "0123456789" contains char -%}
                 {%- continue -%}
             {%- endif -%}
             {%- assign _display_note = _display_note | push: char -%}
+            {%- case char -%}
+                {%- when "C" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "Do" -%}
+                {%- when "D" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "Re" -%}
+                {%- when "E" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "Mi" -%}
+                {%- when "F" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "Fa" -%}
+                {%- when "G" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "Sol" -%}
+                {%- when "A" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "La" -%}
+                {%- when "B" -%}
+                    {%- assign _solfage_note = _solfage_note | push: "Ti" -%}
+            {%- endcase -%}
         {%- endfor -%}
         {%- assign _display_note = _display_note | join: "" -%}
+        {%- assign _solfage_note = _solfage_note | join: "" -%}
         {%- assign _notes = _notes | push: _display_note -%}
+        {%- assign _solfage_notes = _solfage_notes | push: _solfage_note -%}
     {%- endfor -%}
     {%- assign _display_note = "" | split: "" -%}
     {%- assign _display_note = _display_note | push: color.name -%}
     {%- assign _display_note = _display_note | push: _notes -%}
     {%- assign display_notes = display_notes | push: _display_note -%}
+    {%- assign _solfage_note = "" | split: "" -%}
+    {%- assign _solfage_note = _solfage_note | push: color.name -%}
+    {%- assign _solfage_note = _solfage_note | push: _solfage_notes -%}
+    {%- assign solfage_notes = solfage_notes | push: _solfage_note -%}
 {%- endfor -%}
 
 
@@ -194,6 +219,9 @@ This is a method for teaching absolute pitch to children aged 2-6. Children shou
                         {%- assign _notes = display_notes
                         | where_exp: "display", "display.first == color.name"
                         | first | last -%}
+                        {%- assign _solfage_notes = solfage_notes
+                        | where_exp: "display", "display.first == color.name"
+                        | first | last -%}
                         {%- for note in _notes -%}
                         {%- assign absolute_note = color.notes[forloop.index0]
                                                    | replace: "#", "-sharp" -%}
@@ -205,6 +233,9 @@ This is a method for teaching absolute pitch to children aged 2-6. Children shou
                                 <div class="note"></div>
                                 <div class="note-text">
                                     <span class="note-text-span">{{ note | replace: "#", "♯" | replace: "b", "♭" }}</span>
+                                </div>
+                                <div class="note-text solfage">
+                                    <span class="note-text-span">{{ _solfage_notes[forloop.index0] }}</span>
                                 </div>
                         </div>
                         {%- endfor -%}
@@ -255,6 +286,10 @@ This is a method for teaching absolute pitch to children aged 2-6. Children shou
                 {%- for instrument in site.data.instruments -%}
                     <option value="{{instrument.name}}">{{instrument.display}}</option>
                 {%- endfor -%}
+            </select>
+            <select class="selector" name="notation" id="notation-selector" onchange="toggle_notation()">
+                <option value="letter">Letter Notation</option>
+                <option value="solfage">Solfage Notation</option>
             </select>
         </div>
 </div>
