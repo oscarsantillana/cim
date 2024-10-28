@@ -116,6 +116,7 @@ const _DEFAULT_TARGET_NUMBER = 25;
 const _DEFAULT_SHOW_CHORD_MODE = "black_only";
 const _DEFAULT_REVEAL_CHORD_MODE = "always";
 const _DEFAULT_CHORD_DISPLAY_MODE = "shapes_and_letters";
+const _DEFAULT_CHORD_NOTATION = "letters"; // P11d5
 
 const _INFOBOX_TRIGGER_IDS = [
     "trainer-infobox-trigger",
@@ -228,6 +229,12 @@ function populate_flags() {
         base_elem.classList.remove("chord-notes");
     }
 
+    // Pff84
+    if (get_current_profile().chord_notation === "solfege") {
+        base_elem.classList.add("solfege-notation");
+    } else {
+        base_elem.classList.remove("solfege-notation");
+    }
 }
 
 function audio_file_elem(audio_file) {
@@ -744,6 +751,7 @@ function initialize_profile_defaults(profile) {
         show_chord_mode: _DEFAULT_SHOW_CHORD_MODE,
         reveal_chord_mode: _DEFAULT_REVEAL_CHORD_MODE,
         chord_display_mode: _DEFAULT_CHORD_DISPLAY_MODE,
+        chord_notation: _DEFAULT_CHORD_NOTATION, // P9159
     }
 
     for (const [val, default_val] of Object.entries(profile_defaults)) {
@@ -794,10 +802,11 @@ function new_profile_from_values(values) {
         show_chord_mode = values.show_chord_mode,
         reveal_chord_mode = values.reveal_chord_mode,
         chord_display_mode = values.chord_display_mode,
+        chord_notation = values.chord_notation, // P11d5
     );
 }
 
-function new_profile(name, icon, id, target_number=_DEFAULT_TARGET_NUMBER, show_chord_mode=_DEFAULT_SHOW_CHORD_MODE, reveal_chord_mode=_DEFAULT_REVEAL_CHORD_MODE, chord_display_mode=_DEFAULT_CHORD_DISPLAY_MODE) {
+function new_profile(name, icon, id, target_number=_DEFAULT_TARGET_NUMBER, show_chord_mode=_DEFAULT_SHOW_CHORD_MODE, reveal_chord_mode=_DEFAULT_REVEAL_CHORD_MODE, chord_display_mode=_DEFAULT_CHORD_DISPLAY_MODE, chord_notation=_DEFAULT_CHORD_NOTATION) { // P11d5
     if (id === undefined || id === null) {
         id = _GUEST_USER_ID + 1;
         while (id in STATE["profiles"]) {
@@ -813,6 +822,7 @@ function new_profile(name, icon, id, target_number=_DEFAULT_TARGET_NUMBER, show_
         show_chord_mode: show_chord_mode,
         reveal_chord_mode: reveal_chord_mode,
         chord_display_mode: chord_display_mode,
+        chord_notation: chord_notation, // P11d5
         stats: new_stats(),
         current_chord: _DEFAULT_CHORD,
         current_instrument: _DEFAULT_INSTRUMENT,
@@ -1066,6 +1076,9 @@ function get_profile_settings() {
     const chord_display_mode_elem = document.getElementById("chord-name-display-mode-selector");
     const chord_display_mode = chord_display_mode_elem.value;
 
+    const chord_notation_elem = document.getElementById("chord-notation-selector"); // P11d5
+    const chord_notation = chord_notation_elem.value; // P11d5
+
     const target_number_elem = document.getElementById("target_number_setting");
     let target_number = target_number_elem.value;
 
@@ -1077,6 +1090,7 @@ function get_profile_settings() {
         show_chord_mode: show_chord_mode,
         reveal_chord_mode: reveal_chord_mode,
         chord_display_mode: chord_display_mode,
+        chord_notation: chord_notation, // P11d5
     }
 }
 
@@ -1104,6 +1118,8 @@ function clear_profile_dialog() {
     let chord_display_mode_elem = profile_dialog.querySelector("select#chord-name-display-mode-selector");
     chord_display_mode_elem.value = _DEFAULT_CHORD_DISPLAY_MODE;
 
+    let chord_notation_elem = profile_dialog.querySelector("select#chord-notation-selector"); // P11d5
+    chord_notation_elem.value = _DEFAULT_CHORD_NOTATION; // P11d5
 
     profile_dialog.dataset.id = null;
 }
@@ -1138,6 +1154,9 @@ function profile_settings(profile) {
     let chord_display_mode_elem = document.getElementById("chord-name-display-mode-selector");
     chord_display_mode_elem.value = profile.chord_display_mode;
 
+    let chord_notation_elem = document.getElementById("chord-notation-selector"); // P11d5
+    chord_notation_elem.value = profile.chord_notation; // P11d5
+
     profile_dialog.dataset.id = profile["id"];
 }
 
@@ -1165,6 +1184,7 @@ function submit_profile_changes() {
     current_profile.show_chord_mode = profile_values.show_chord_mode;
     current_profile.reveal_chord_mode = profile_values.reveal_chord_mode;
     current_profile.chord_display_mode = profile_values.chord_display_mode;
+    current_profile.chord_notation = profile_values.chord_notation; // P11d5
 
     save_state();
     populate_profile_pulldown();
@@ -1247,6 +1267,11 @@ function set_current_profile(profile) {
     // Instrument must come first
     change_instrument(profile.current_instrument);
     change_selector(profile.current_chord);
+
+    // P6d80
+    if (profile.chord_notation === undefined) {
+        profile.chord_notation = _DEFAULT_CHORD_NOTATION;
+    }
 
     save_state();
 }

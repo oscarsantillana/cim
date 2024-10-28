@@ -756,3 +756,9 @@ div.gray {
 div.lightpurple {
     background-color: $lightpurple;
 }
+
+/* P6951 */
+div.flag-container.solfege-notation div.chord-notes-container > div.note-wrapper div.note-text {
+    font-style: italic;
+    color: #ff6347; // Tomato color for Solfège notation
+}
