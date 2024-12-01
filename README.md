@@ -13,3 +13,16 @@ Introduce the chords to the children one at a time, spacing out new chord introd
 
 Feel free to open issues or pull requests or fork the code! The site is designed to be be easy to re-host or run locally. I am not exactly the world's best UX designer or front-end developer, but I am a heavy consumer of this app, so any improvements would be heartily welcomed!
 
+## New Feature: Chord Notation Setting
+
+We have introduced a new feature that allows users to change the chord notation from Letters to Solfège. This setting is stored in the user profile and remembered for subsequent sessions.
+
+### How to Use
+
+1. Go to the user profile settings.
+2. Find the option for chord notation.
+3. Choose between Letters and Solfège.
+4. Save the changes.
+
+The chords will now be displayed in the selected notation.
+
