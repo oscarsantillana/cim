@@ -45,33 +45,45 @@ jobs:
         id: pages
         uses: actions/configure-pages@v4
       
+      - name: Display Ruby and Bundler versions
+        run: |
+          ruby -v
+          bundler -v
+      
+      - name: Install dependencies
+        run: |
+          bundle install
+          bundle list
+      
+      # Assuming 'make init' involves gem installations, let's run it after bundle install
       - name: Initialize site
         run: make init
+        
+      # Check what the Makefile's 'html' command does
+      - name: Check Makefile
+        run: cat Makefile
       
       - name: Build with Jekyll
-        run: make html
+        run: |
+          # Use the direct Jekyll command to ensure it works
+          bundle exec jekyll build
         env:
           JEKYLL_ENV: production
       
-      - name: Debug directory contents
+      - name: Check for build errors
         run: |
-          echo "Current directory:"
-          ls -la
-          echo "_site directory:"
-          ls -la _site || echo "_site directory not found"
+          if [ -d "_site" ]; then
+            echo "Build successful - _site directory found"
+            echo "Contents of _site:"
+            ls -la _site
+          else
+            echo "Build failed - _site directory not found"
+            echo "Current directory contents:"
+            ls -la
+            exit 1
+          fi
       
-      # Use actions/upload-artifact (NOT upload-pages-artifact)
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4  # Explicitly use v4 as seen in logs
-        with:
-          name: github-pages
-          path: _site
-          retention-days: 1
-          if-no-files-found: error
-          compression-level: 9
-      
-      # Create an empty artifact with the correct name for deploy-pages
-      - name: Create pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: _site
