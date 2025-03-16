@@ -33,60 +33,51 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      
+        uses: actions/checkout@v3
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.1'
+          ruby-version: 3.1
           bundler-cache: true
-      
       - name: Setup Pages
         id: pages
-        uses: actions/configure-pages@v4
-      
-      - name: Display Ruby and Bundler versions
-        run: |
-          ruby -v
-          bundler -v
-      
-      - name: Install dependencies
-        run: |
-          bundle install
-          bundle list
-      
-      # Assuming 'make init' involves gem installations, let's run it after bundle install
+        uses: actions/configure-pages@v3
       - name: Initialize site
         run: make init
-        
-      # Check what the Makefile's 'html' command does
-      - name: Check Makefile
-        run: cat Makefile
-      
       - name: Build with Jekyll
-        run: |
-          # Use the direct Jekyll command to ensure it works
-          bundle exec jekyll build
+        run: make html
         env:
           JEKYLL_ENV: production
-      
-      - name: Check for build errors
+      # Debug step to check the output directory
+      - name: List output files
+        run: ls -la
+      # This step checks if ./_site exists, if not, it tries a common alternative
+      - name: Check for output directory
         run: |
           if [ -d "_site" ]; then
-            echo "Build successful - _site directory found"
-            echo "Contents of _site:"
-            ls -la _site
+            echo "Found _site directory"
+          elif [ -d "site" ]; then
+            echo "Found site directory, copying to _site"
+            mkdir -p _site
+            cp -r site/* _site/
+          elif [ -d "build" ]; then
+            echo "Found build directory, copying to _site"
+            mkdir -p _site
+            cp -r build/* _site/
+          elif [ -d "output" ]; then
+            echo "Found output directory, copying to _site"
+            mkdir -p _site
+            cp -r output/* _site/
           else
-            echo "Build failed - _site directory not found"
+            echo "No known output directory found. Please check your make html command."
             echo "Current directory contents:"
             ls -la
             exit 1
           fi
-      
-      - name: Upload Pages artifact
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
+          path: ./_site
 
   # Deployment job
   deploy:
@@ -94,8 +85,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
     needs: build
-    if: github.event_name == 'push'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
